@@ -1,0 +1,67 @@
+  /**************
+ * Include Libraries
+ **************/
+
+#include "Ubidots.h"
+
+/**************
+ * Define Constants
+ **************/
+
+const char* UBIDOTS_TOKEN = "BBFF-tsLOvOY7iOGB1PPtK81x4LvNoeqSeS";  // Put here your Ubidots TOKEN
+const char* WIFI_SSID = "claro"; // Put here your Wi-Fi SSID
+const char* WIFI_PASS = "MATTOS123"; // Put here your Wi-Fi password
+
+const int sensorPin = A0;   
+int sensorValue; 
+int sensorValuex ;
+
+Ubidots ubidots(UBIDOTS_TOKEN, UBI_HTTP);
+
+/**************
+ * Auxiliar Functions
+ **************/
+
+// Put here your auxiliar functions
+
+/**************
+ * Main Functions
+ **************/
+
+void setup() {
+  Serial.begin(115200);
+  ubidots.wifiConnect(WIFI_SSID, WIFI_PASS);
+  // ubidots.setDebug(true); //Uncomment this line for printing debug messages
+}
+
+void loop() {
+
+  float value = ubidots.get("e8db84af7cda", "tension"); // Valor de la variable
+
+  // Evaluates the results obtained
+  if (value != ERROR_VALUE) {
+    Serial.print("Value:");
+    Serial.println(value);
+  }
+
+ 
+
+    sensorValuex = analogRead(sensorPin);// realizar la lectura
+
+sensorValue = map(sensorValuex, 432, 605, 0, 100);
+  
+
+ ubidots.add("tension", sensorValue);
+  
+
+
+    bool bufferSent = false;
+  bufferSent = ubidots.send(); // Will send data to a device label that matches the device Id
+
+  if (bufferSent) {
+  // Do something if values were sent properly
+   Serial.println("Values sent by the device");
+  }
+  Serial.println(sensorValue);
+  delay(50000);
+}
